@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id      String  @id @default(uuid())
+  clerkId String
+  email   String  @unique
+  name    String?
+
+  catalogs Catalog[]
+}
+
+model Catalog {
+  id                 String @id @default(uuid())
+  catalogTitle       String
+  catalogColor       String
+  catalogDescription String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  entries Entry[]
+}
+
+model Entry {
+  id               String  @id @default(uuid())
+  entryTitle       String
+  entryArtist      String
+  entryReleaseDate String?
+  entryCoverArt    String?
+  entryRating      Int?
+  entryReview      String?
+  entryExternalId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  catalogId String
+  catalog   Catalog @relation(fields: [catalogId], references: [id])
+
+  tracks Track[]
+}
+
+model Track {
+  id            Int     @id @default(autoincrement())
+  trackTitle    String
+  trackDuration Int?
+  trackRating   Int?
+  trackReview   String?
+
+  entryId String
+  entry   Entry  @relation(fields: [entryId], references: [id])
+}
