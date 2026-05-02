@@ -54,7 +54,7 @@ export async function addCatalogItem(album: LastFMAlbum, catalogId: string) {
     body: JSON.stringify({
       entryArtist: albumInfo.album.artist,
       entryTitle: albumInfo.album.name,
-      entryCoverArt: albumInfo.album.image[2]['#text'],
+      entryCoverArt: albumInfo.album.image[4]['#text'],
       entryExternalId: albumInfo.album.mbid,
       entryRating: 0,
       entryReleaseDate: albumInfo.album.wiki?.content?.match(/\d{4}-\d{2}-\d{2}/)?.[0]?.substring(0,4) || "",
@@ -78,6 +78,38 @@ export async function getCatalogEntries(catalogId: string) {
 
   if (!response.ok) {
     throw new Error("Failed to fetch catalog entries");
+  }
+
+  const data = await response.json();
+  return data as EntryType[];
+}
+
+// Entries
+
+export async function updateEntryRating(entryId: string, rating: number) {
+  const response = await fetch(`/api/entry/${entryId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({ entryRating: rating })
+  });
+
+  if(!response.ok) {
+    throw new Error ("failed to update entry rating")
+  }
+
+  const data = await response.json();
+  return data as EntryType[];
+}
+
+export async function updateEntryReview(entryId: string, review: string) {
+  const response = await fetch(`/api/entry/${entryId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({ entryReview: review })
+  });
+
+  if(!response.ok) {
+    throw new Error ("failed to update entry rating")
   }
 
   const data = await response.json();

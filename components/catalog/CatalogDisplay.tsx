@@ -1,7 +1,7 @@
 "use client";
 import { useAppContext } from "@/lib/context/AppContext";
 import CatalogList from "./CatalogList";
-import CatalogEntry from "./CatalogEntry";
+import CatalogEntry from "../entries/CatalogEntry";
 
 export default function CatalogDisplay() {
   const { selectedCatalog } = useAppContext();

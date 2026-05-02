@@ -1,17 +1,19 @@
 "use client";
 import { createContext, ReactNode, useContext, useState } from "react";
-import { CatalogType } from "../types/types";
+import { CatalogType, EntryType } from "../types/types";
 
 interface ContextType {
   theme: "light" | "dark";
   setTheme: (theme: "light" | "dark") => void;
   popup: React.ReactNode | null;
   setPopup: (popup: React.ReactNode | null) => void;
+  closePopup: () => void;
   catalogs: CatalogType[] | null
   setCatalogs: (catalogs: CatalogType[] | null) => void;
   selectedCatalog: CatalogType | null;
   setSelectedCatalog: (selectedCatalog: CatalogType | null) => void;
-  closePopup: () => void;
+  selectedEntry: EntryType | null
+  setSelectedEntry: (selectedEntry: EntryType | null) => void;
 }
 
 const AppContext = createContext<ContextType | undefined>(undefined);
@@ -19,9 +21,10 @@ const AppContext = createContext<ContextType | undefined>(undefined);
 export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [popup, setPopup] = useState<React.ReactNode | null>(null);
+  const closePopup = () => setPopup(null);
   const [catalogs, setCatalogs] = useState<CatalogType[] | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogType | null>(null);
-  const closePopup = () => setPopup(null);
+  const [selectedEntry, setSelectedEntry] = useState<EntryType | null>(null);
 
   return (
     <AppContext.Provider
@@ -34,7 +37,9 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
         catalogs,
         setCatalogs,
         selectedCatalog, 
-        setSelectedCatalog
+        setSelectedCatalog,
+        selectedEntry,
+        setSelectedEntry
       }}
     >
       {children}

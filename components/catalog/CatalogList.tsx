@@ -9,6 +9,7 @@ import { LastFMAlbum } from "@/lib/types/LastFMInfoTypes";
 import { addCatalogItem, getCatalogEntries } from "@/lib/actions/actions";
 import { useEffect } from "react";
 import { Spinner } from "../ui/spinner";
+import EntryListItem from "../entries/EntryListItem";
 
 export default function CatalogList({
   selectedCatalog,
@@ -37,7 +38,7 @@ export default function CatalogList({
 
   const handleSubmit = async (submittedAlbum: LastFMAlbum) => {
     closePopup();
-    setPopup(<Spinner />)
+    setPopup(<Spinner />);
     if (!selectedCatalog) return;
     const newEntry = await addCatalogItem(submittedAlbum, selectedCatalog.id);
     const updatedCatalog: CatalogType = {
@@ -67,24 +68,7 @@ export default function CatalogList({
       </div>
       <div className="catalog-entries-list grid grid-cols-7 gap-4 justify-center mx-auto">
         {selectedCatalog?.entry?.map((entry: EntryType, index: number) => (
-          <div
-            key={index}
-            className="flex flex-col gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            <img
-              src={entry.entryCoverArt}
-              alt={entry.entryTitle}
-              className="w-32 h-32 object-cover rounded-md"
-            />
-            <div className="text-center">
-              <p className="text-sm font-semibold truncate w-32">
-                {entry.entryTitle}
-              </p>
-              <p className="text-xs text-muted-foreground truncate w-32">
-                {entry.entryArtist}
-              </p>
-            </div>
-          </div>
+          <EntryListItem entry={entry} key={index} />
         ))}
         <Button
           variant={"outline"}
