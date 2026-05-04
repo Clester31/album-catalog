@@ -24,6 +24,7 @@ export interface TrackType {
     id: number
     entryId: string
     trackDuration: number
+    trackOrder: number
     trackRating: number
     trackReview: string
     trackTitle: string

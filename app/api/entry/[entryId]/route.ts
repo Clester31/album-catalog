@@ -61,7 +61,7 @@ export async function PATCH(
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to add entry to catalog" },
+      { error: "Failed to update entry" },
       { status: 500 },
     );
   }

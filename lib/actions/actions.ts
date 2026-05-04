@@ -1,5 +1,9 @@
-import { LastFMAlbum, LastFMAlbumInfoResponse, LastFMTopAlbumsResponse } from "../types/LastFMInfoTypes";
-import { CatalogType, EntryType } from "../types/types";
+import {
+  LastFMAlbum,
+  LastFMAlbumInfoResponse,
+  LastFMTopAlbumsResponse,
+} from "../types/LastFMInfoTypes";
+import { CatalogType, EntryType, TrackType } from "../types/types";
 
 // creating/fetching catalogs
 
@@ -44,7 +48,7 @@ export async function getAllUserCatalogs() {
 // adding catalog item
 
 export async function addCatalogItem(album: LastFMAlbum, catalogId: string) {
-  const albumInfo = await getLastFMAlbumInfo(album.name, album.artist.name)
+  const albumInfo = await getLastFMAlbumInfo(album.name, album.artist.name);
 
   const response = await fetch(`/api/catalog/${catalogId}`, {
     method: "POST",
@@ -54,12 +58,15 @@ export async function addCatalogItem(album: LastFMAlbum, catalogId: string) {
     body: JSON.stringify({
       entryArtist: albumInfo.album.artist,
       entryTitle: albumInfo.album.name,
-      entryCoverArt: albumInfo.album.image[4]['#text'],
+      entryCoverArt: albumInfo.album.image[4]["#text"],
       entryExternalId: albumInfo.album.mbid,
       entryRating: 0,
-      entryReleaseDate: albumInfo.album.wiki?.content?.match(/\d{4}-\d{2}-\d{2}/)?.[0]?.substring(0,4) || "",
+      entryReleaseDate:
+        albumInfo.album.wiki?.content
+          ?.match(/\d{4}-\d{2}-\d{2}/)?.[0]
+          ?.substring(0, 4) || "",
       entryReview: "",
-      entryTracks: albumInfo.album.tracks.track
+      entryTracks: albumInfo.album.tracks.track,
     }),
   });
 
@@ -89,12 +96,12 @@ export async function getCatalogEntries(catalogId: string) {
 export async function updateEntryRating(entryId: string, rating: number) {
   const response = await fetch(`/api/entry/${entryId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json"},
-    body: JSON.stringify({ entryRating: rating })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ entryRating: rating }),
   });
 
-  if(!response.ok) {
-    throw new Error ("failed to update entry rating")
+  if (!response.ok) {
+    throw new Error("failed to update entry rating");
   }
 
   const data = await response.json();
@@ -104,16 +111,69 @@ export async function updateEntryRating(entryId: string, rating: number) {
 export async function updateEntryReview(entryId: string, review: string) {
   const response = await fetch(`/api/entry/${entryId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json"},
-    body: JSON.stringify({ entryReview: review })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ entryReview: review }),
   });
 
-  if(!response.ok) {
-    throw new Error ("failed to update entry rating")
+  if (!response.ok) {
+    throw new Error("failed to update entry rating");
   }
 
   const data = await response.json();
   return data as EntryType[];
+}
+
+// Entry Track ratings
+
+export async function getTrackRatings(entryId: string) {
+  const response = await fetch(`/api/entry/${entryId}/tracks`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch track ratings entries");
+  }
+
+  const data = await response.json();
+  return data as TrackType[];
+}
+
+export async function updateTrackRating(trackId: string, rating: number) {
+  const response = await fetch(`/api/track/${trackId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      trackRating: rating,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update track rating");
+  }
+
+  const data = await response.json();
+  return data as TrackType;
+}
+
+export async function updateTrackReview(trackId: string, review: string) {
+  const response = await fetch(`/api/track/${trackId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      trackReview: review,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update track review");
+  }
+
+  const data = await response.json();
+  return data as TrackType;
 }
 
 // Last FM

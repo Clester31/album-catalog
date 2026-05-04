@@ -5,7 +5,7 @@ import { useAppContext } from "@/lib/context/AppContext";
 import { Input } from "../ui/input";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,14 +14,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { updateEntryRating, updateEntryReview } from "@/lib/actions/actions";
+import {
+  getTrackRatings,
+  updateEntryRating,
+  updateEntryReview,
+} from "@/lib/actions/actions";
 import { ratingColors } from "@/lib/utils";
 import { Textarea } from "../ui/textarea";
+import { TrackType } from "@/lib/types/types";
+import TrackRating from "../tracks/TrackRating";
 
 export default function CatalogEntry() {
   const { selectedEntry, setSelectedEntry } = useAppContext();
   const [editReview, setEditReview] = useState<boolean>(false);
   const [entryReview, setEntryReview] = useState<string>("");
+  const [entryTracks, setEntryTracks] = useState<TrackType[]>([]);
+
+  useEffect(() => {
+    const updateEntryTracks = async () => {
+      if (selectedEntry) {
+        const response = await getTrackRatings(selectedEntry.id);
+        setEntryTracks([...response].sort((a, b) => a.trackOrder - b.trackOrder));
+      } else {
+        setEntryTracks([]);
+      }
+    };
+    updateEntryTracks();
+  }, [selectedEntry]);
 
   const updateRating = async (rating: number) => {
     if (!selectedEntry) return;
@@ -50,7 +69,7 @@ export default function CatalogEntry() {
   };
 
   return (
-    <div className="flex flex-col w-2/5 p-4 gap-4">
+    <div className="flex flex-col w-2/5 p-4 gap-4 overflow-y-scroll">
       <div className="entry-header flex flex-row w-full justify-around items-start text-center gap-2 p-4 h-[20rem]">
         <div className="w-1/2">
           <img
@@ -175,6 +194,16 @@ export default function CatalogEntry() {
             )}
           </div>
         )}
+      </div>
+      <div className="entry-tracks flex flex-col gap-2">
+        <h1 className="text-xl font-semibold flex flex-row gap-2 items-center">Track Ratings</h1>
+        {selectedEntry &&
+          entryTracks &&
+          entryTracks.map((track: TrackType, index: number) => {
+            return (
+              <TrackRating key={index} track={track} />
+            )
+          })}
       </div>
     </div>
   );

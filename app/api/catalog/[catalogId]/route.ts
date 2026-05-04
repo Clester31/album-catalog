@@ -73,9 +73,10 @@ export async function POST(
         entryReview,
         tracks: {
           create: entryTracks.map(
-            (track: { name: string; duration: string }) => ({
+            (track: { name: string; duration: string }, index: number) => ({
               trackTitle: track.name,
               trackDuration: parseInt(track.duration) || 0,
+              trackOrder: index + 1,
               trackRating: 0,
               trackReview: "",
             }),
