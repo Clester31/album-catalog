@@ -123,6 +123,19 @@ export async function updateEntryReview(entryId: string, review: string) {
   return data as EntryType[];
 }
 
+export async function deleteEntry(entryId: string) {
+  const response = await fetch(`/api/entry/${entryId}`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    throw new Error("failed to delete entry");
+  }
+
+  const data = await response.json();
+  return data as EntryType;
+}
+
 // Entry Track ratings
 
 export async function getTrackRatings(entryId: string) {

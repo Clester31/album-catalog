@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import {
+  deleteEntry,
   getTrackRatings,
   updateEntryRating,
   updateEntryReview,
@@ -23,12 +24,28 @@ import { ratingColors } from "@/lib/utils";
 import { Textarea } from "../ui/textarea";
 import { TrackType } from "@/lib/types/types";
 import TrackRating from "../tracks/TrackRating";
+import ConfirmDeletePopup from "../popup/ConfirmDeletePopup";
 
 export default function CatalogEntry() {
-  const { selectedEntry, setSelectedEntry } = useAppContext();
+  const { selectedEntry, setSelectedEntry, setPopup, closePopup, setCatalogs, catalogs } = useAppContext();
   const [editReview, setEditReview] = useState<boolean>(false);
   const [entryReview, setEntryReview] = useState<string>("");
   const [entryTracks, setEntryTracks] = useState<TrackType[]>([]);
+
+  const deleteCatalogEntry = async () => {
+    if(!selectedEntry) return;
+
+    try {
+      const removedEntry = await deleteEntry(selectedEntry.id);
+      setCatalogs(catalogs?.filter((catalog) => catalog.id !== removedEntry.id) ?? null);
+      setSelectedEntry(null);
+    } catch (error) {
+      setSelectedEntry(selectedEntry);
+      console.error("failed to delete entry: ", error);
+    }
+    closePopup();
+    
+  }
 
   useEffect(() => {
     const updateEntryTracks = async () => {
@@ -67,6 +84,14 @@ export default function CatalogEntry() {
       console.error("failed to update review: ", error);
     }
   };
+
+  if(!selectedEntry) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full w-2/5 p-4 gap-4">
+        <h1 className="w-3/4 text-xl text-white/75 text-center">Click on an entry to view/edit it&apos;s details. You can add a new entry by clicking the &apos;+&apos; button</h1>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col w-2/5 p-4 gap-4 overflow-y-scroll">
@@ -205,6 +230,9 @@ export default function CatalogEntry() {
             )
           })}
       </div>
+      <Button variant={"destructive"} className="h-12 text-xl" onClick={() => setPopup(
+        <ConfirmDeletePopup onSubmit={deleteCatalogEntry} onClose={closePopup} />
+      )}>Delete Catalog</Button>
     </div>
   );
 }

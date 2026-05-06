@@ -44,5 +44,13 @@ export async function POST(req: Request) {
     });
   }
 
+  if (type === "user.deleted") {
+    if (!data.id) return new Response("No user ID provided", { status: 400 });
+    
+    await prisma.user.delete({
+      where: { clerkId: data.id},
+    })
+  }
+
   return new Response("OK", { status: 200 });
 }
