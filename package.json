@@ -14,12 +14,14 @@
     "@prisma/client": "^7.8.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.4.2",
     "lucide-react": "^1.11.0",
     "next": "16.2.4",
     "pg": "^8.20.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.4",
+    "react-day-picker": "^10.0.0",
     "react-dom": "19.2.4",
     "shadcn": "^4.5.0",
     "svix": "^1.92.2",
@@ -38,5 +40,8 @@
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }

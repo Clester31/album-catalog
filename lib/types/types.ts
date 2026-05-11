@@ -17,7 +17,9 @@ export interface EntryType {
     entryReleaseDate: string,
     entryReview: string,
     entryTitle: string,
+    entryListeningDate: string,
     Track: TrackType[]
+    createdAt: string
 }
 
 export interface TrackType {

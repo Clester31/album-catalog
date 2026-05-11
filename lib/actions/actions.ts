@@ -45,6 +45,34 @@ export async function getAllUserCatalogs() {
   return data as CatalogType[];
 }
 
+export async function deleteUserCatalog(catalogId: string) {
+  const response = await fetch(`/api/catalog/${catalogId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("failed to delete user catalog");
+  }
+
+  const data = await response.json();
+  return data as CatalogType;
+}
+
+export async function updateUserCatalog(catalogId: string, newName: string, newDescription: string, newColor: string) {
+  const response = await fetch(`/api/catalog/${catalogId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ catalogTitle: newName, catalogDescription: newDescription, catalogColor: newColor }),
+  });
+
+  if (!response.ok) {
+    throw new Error("failed to update user catalog");
+  }
+
+  const data = await response.json();
+  return data as CatalogType;
+}
+
 // adding catalog item
 
 export async function addCatalogItem(album: LastFMAlbum, catalogId: string) {
@@ -117,6 +145,21 @@ export async function updateEntryReview(entryId: string, review: string) {
 
   if (!response.ok) {
     throw new Error("failed to update entry rating");
+  }
+
+  const data = await response.json();
+  return data as EntryType[];
+}
+
+export async function updateEntryListeningDate(entryId: string, listeningDate: string) {
+  const response = await fetch(`/api/entry/${entryId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ entryListeningDate: listeningDate }),
+  });
+
+  if (!response.ok) {
+    throw new Error("failed to update entry listening date");
   }
 
   const data = await response.json();

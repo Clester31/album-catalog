@@ -52,7 +52,7 @@ export default function Sidebar() {
           variant={"default"}
           onClick={() => {
             setPopup(
-              <NewCatalogPopup onSubmit={handleSubmit} onClose={closePopup} />,
+              <NewCatalogPopup onSubmit={handleSubmit} onClose={closePopup} type='new' />,
             );
           }}
         >

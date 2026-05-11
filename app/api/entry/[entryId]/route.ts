@@ -16,9 +16,9 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { entryRating, entryReview } = body;
+    const { entryRating, entryReview, entryListeningDate } = body;
 
-    if (entryRating === undefined && entryReview === undefined) {
+    if (entryRating === undefined && entryReview === undefined && entryListeningDate === undefined) {
       return NextResponse.json(
         { error: "No fields to update" },
         { status: 400 },
@@ -48,6 +48,9 @@ export async function PATCH(
     const entryData: Record<string, unknown> = {};
     if (entryRating !== undefined) entryData.entryRating = entryRating;
     if (entryReview !== undefined) entryData.entryReview = entryReview;
+    if (entryListeningDate !== undefined) entryData.entryListeningDate = entryListeningDate;
+
+    console.log("entryData: ", entryData);
 
     const [updatedEntry] = await prisma.$transaction([
       prisma.entry.update({

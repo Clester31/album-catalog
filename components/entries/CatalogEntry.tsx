@@ -2,7 +2,6 @@
 "use client";
 
 import { useAppContext } from "@/lib/context/AppContext";
-import { Input } from "../ui/input";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
@@ -17,93 +16,163 @@ import {
 import {
   deleteEntry,
   getTrackRatings,
+  updateEntryListeningDate,
   updateEntryRating,
   updateEntryReview,
 } from "@/lib/actions/actions";
 import { ratingColors } from "@/lib/utils";
 import { Textarea } from "../ui/textarea";
-import { TrackType } from "@/lib/types/types";
+import { EntryType, TrackType } from "@/lib/types/types";
 import TrackRating from "../tracks/TrackRating";
 import ConfirmDeletePopup from "../popup/ConfirmDeletePopup";
+import { Spinner } from "../ui/spinner";
+import { DatePicker } from "../ui/DatePicker";
 
 export default function CatalogEntry() {
-  const { selectedEntry, setSelectedEntry, setPopup, closePopup, setCatalogs, catalogs } = useAppContext();
+  const {
+    selectedEntry,
+    setSelectedEntry,
+    setPopup,
+    closePopup,
+    setCatalogs,
+    catalogs,
+    selectedCatalog,
+    setSelectedCatalog,
+  } = useAppContext();
   const [editReview, setEditReview] = useState<boolean>(false);
   const [entryReview, setEntryReview] = useState<string>("");
   const [entryTracks, setEntryTracks] = useState<TrackType[]>([]);
-
-  const deleteCatalogEntry = async () => {
-    if(!selectedEntry) return;
-
-    try {
-      const removedEntry = await deleteEntry(selectedEntry.id);
-      setCatalogs(catalogs?.filter((catalog) => catalog.id !== removedEntry.id) ?? null);
-      setSelectedEntry(null);
-    } catch (error) {
-      setSelectedEntry(selectedEntry);
-      console.error("failed to delete entry: ", error);
-    }
-    closePopup();
-    
-  }
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const updateEntryTracks = async () => {
+      setLoading(true);
+      setEntryTracks([]);
+
       if (selectedEntry) {
         const response = await getTrackRatings(selectedEntry.id);
-        setEntryTracks([...response].sort((a, b) => a.trackOrder - b.trackOrder));
+        setEntryTracks(
+          [...response].sort((a, b) => a.trackOrder - b.trackOrder),
+        );
       } else {
         setEntryTracks([]);
       }
+      setLoading(false);
     };
     updateEntryTracks();
   }, [selectedEntry]);
 
+  const syncEntryUpdate = (updatedEntry: EntryType) => {
+    setSelectedEntry(updatedEntry);
+    setSelectedCatalog(
+      selectedCatalog
+        ? {
+            ...selectedCatalog,
+            entry:
+              selectedCatalog.entry?.map((e) =>
+                e.id === updatedEntry.id ? updatedEntry : e,
+              ) ?? [],
+          }
+        : null,
+    );
+    setCatalogs(
+      catalogs?.map((catalog) => ({
+        ...catalog,
+        entry:
+          catalog.entry?.map((e) =>
+            e.id === updatedEntry.id ? updatedEntry : e,
+          ) ?? [],
+      })) ?? null,
+    );
+  };
+
   const updateRating = async (rating: number) => {
     if (!selectedEntry) return;
-
-    setSelectedEntry({ ...selectedEntry, entryRating: rating });
-
+    syncEntryUpdate({ ...selectedEntry, entryRating: rating });
     try {
       await updateEntryRating(selectedEntry.id, rating);
     } catch (error) {
-      setSelectedEntry(selectedEntry);
-      console.error("failed to update rating: ", error);
+      syncEntryUpdate(selectedEntry); 
     }
   };
 
   const updateReview = async () => {
     if (!selectedEntry) return;
-
-    setSelectedEntry({ ...selectedEntry, entryReview });
-
+    syncEntryUpdate({ ...selectedEntry, entryReview });
     try {
       await updateEntryReview(selectedEntry.id, entryReview);
     } catch (error) {
-      setSelectedEntry(selectedEntry);
+      syncEntryUpdate(selectedEntry);
       console.error("failed to update review: ", error);
     }
   };
 
-  if(!selectedEntry) {
+  const updateListeningDate = async (newDate: string) => {
+    if (!selectedEntry) return;
+    syncEntryUpdate({ ...selectedEntry, entryListeningDate: newDate });
+    try {
+      await updateEntryListeningDate(selectedEntry.id, newDate);
+    } catch (error) {
+      syncEntryUpdate(selectedEntry);
+    }
+  };
+
+  const deleteCatalogEntry = async () => {
+    if (!selectedEntry) return;
+
+    try {
+      await deleteEntry(selectedEntry.id);
+
+      setCatalogs(
+        catalogs?.map((catalog) => ({
+          ...catalog,
+          entry: catalog.entry?.filter((e) => e.id !== selectedEntry.id) ?? [],
+        })) ?? null,
+      );
+
+      setSelectedCatalog(
+        selectedCatalog
+          ? {
+              ...selectedCatalog,
+              entry:
+                selectedCatalog.entry?.filter(
+                  (e) => e.id !== selectedEntry.id,
+                ) ?? [],
+            }
+          : null,
+      );
+
+      setSelectedEntry(null);
+    } catch (error) {
+      console.error("failed to delete entry: ", error);
+    }
+
+    closePopup();
+  };
+
+  if (!selectedEntry) {
     return (
       <div className="flex flex-col items-center justify-center h-full w-2/5 p-4 gap-4">
-        <h1 className="w-3/4 text-xl text-white/75 text-center">Click on an entry to view/edit it&apos;s details. You can add a new entry by clicking the &apos;+&apos; button</h1>
+        <h1 className="w-3/4 text-xl text-white/75 text-center">
+          Click on an entry to view/edit it&apos;s details. You can add a new
+          entry by clicking the &apos;+&apos; button
+        </h1>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="flex flex-col w-2/5 p-4 gap-4 overflow-y-scroll">
-      <div className="entry-header flex flex-row w-full justify-around items-start text-center gap-2 p-4 h-[20rem]">
-        <div className="w-1/2">
+    <div className="flex flex-col w-2/5 p-4 gap-8 overflow-y-scroll">
+      <div className="entry-header flex flex-row w-full justify-between items-start text-center gap-2 p-4 h-[20rem] items-center mb-4">
+        <div className="w-1/2 items-center flex flex-col justify-center gap-2">
           <img
             src={selectedEntry?.entryCoverArt}
             alt="album-cover"
-            className="w-xs rounded-xl border-2 h-xs"
+            className="w-72 rounded-xl border-2 h-xs"
           />
+          <DatePicker onChange={updateListeningDate} />
         </div>
-        <div className="flex flex-col items-center justify-center w-1/2 gap-2">
+        <div className="flex flex-col items-center w-1/2 gap-2">
           <h1 className="text-4xl font-semibold">
             {selectedEntry?.entryTitle}
           </h1>
@@ -221,18 +290,36 @@ export default function CatalogEntry() {
         )}
       </div>
       <div className="entry-tracks flex flex-col gap-2">
-        <h1 className="text-xl font-semibold flex flex-row gap-2 items-center">Track Ratings</h1>
-        {selectedEntry &&
-          entryTracks &&
-          entryTracks.map((track: TrackType, index: number) => {
-            return (
-              <TrackRating key={index} track={track} />
-            )
-          })}
+        <h1 className="text-xl font-semibold flex flex-row gap-2 items-center">
+          Track Ratings
+        </h1>
+        {selectedEntry && entryTracks && !loading ? (
+          <div className="flex flex-col gap-2">
+            {entryTracks.map((track: TrackType, index: number) => {
+              return <TrackRating key={track.id} track={track} />;
+            })}
+            <Button
+              variant={"destructive"}
+              className="h-12 text-xl w-full"
+              onClick={() =>
+                setPopup(
+                  <ConfirmDeletePopup
+                    onSubmit={deleteCatalogEntry}
+                    onClose={closePopup}
+                    item={"entry"}
+                  />,
+                )
+              }
+            >
+              Delete Catalog
+            </Button>
+          </div>
+        ) : (
+          <div className="flex justify-center scale-200">
+            <Spinner />
+          </div>
+        )}
       </div>
-      <Button variant={"destructive"} className="h-12 text-xl" onClick={() => setPopup(
-        <ConfirmDeletePopup onSubmit={deleteCatalogEntry} onClose={closePopup} />
-      )}>Delete Catalog</Button>
     </div>
   );
 }

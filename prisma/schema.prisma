@@ -45,12 +45,13 @@ model Entry {
   entryRating      Int?
   entryReview      String?
   entryExternalId  String?
+  entryListeningDate String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   catalogId String
-  catalog   Catalog @relation(fields: [catalogId], references: [id])
+  catalog   Catalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
 
   tracks Track[]
 }
@@ -64,5 +65,5 @@ model Track {
   trackReview   String?
 
   entryId String
-  entry   Entry  @relation(fields: [entryId], references: [id])
+  entry   Entry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
 }

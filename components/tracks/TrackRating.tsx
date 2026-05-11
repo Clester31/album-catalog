@@ -121,10 +121,7 @@ export default function TrackRating({ track }: { track: TrackType }) {
               </Button>
             ) : (
               <div className="flex flex-row gap-2 items-center">
-                <Button
-                  variant={"default"}
-                  onClick={() => updateReview()}
-                >
+                <Button variant={"default"} onClick={() => updateReview()}>
                   Update
                 </Button>
                 <Button

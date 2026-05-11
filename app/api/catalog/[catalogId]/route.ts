@@ -33,7 +33,6 @@ export async function POST(
       !entryArtist ||
       !entryTitle ||
       !entryCoverArt ||
-      !entryExternalId ||
       entryRating === undefined ||
       entryRating === null ||
       !entryTracks
@@ -71,6 +70,7 @@ export async function POST(
         entryRating,
         entryReleaseDate,
         entryReview,
+        createdAt: new Date().toISOString(),
         tracks: {
           create: entryTracks.map(
             (track: { name: string; duration: string }, index: number) => ({
@@ -122,7 +122,7 @@ export async function GET(
     const entries = await prisma.entry.findMany({
       where: {
         catalogId,
-        catalog: { userId: user.id }, 
+        catalog: { userId: user.id },
       },
       include: { tracks: true },
     });
@@ -132,6 +132,106 @@ export async function GET(
     console.error(error);
     return NextResponse.json(
       { error: "Failed to fetch catalog entries" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ catalogId: string }> },
+) {
+  try {
+    const { catalogId } = await params;
+    const { userId: clerkId } = await auth();
+
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { catalogTitle, catalogColor, catalogDescription } = body;
+
+    const user = await prisma.user.findFirst({
+      where: { clerkId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User Not Found" }, { status: 404 });
+    }
+
+    const catalog = await prisma.catalog.findFirst({
+      where: {
+        id: catalogId,
+        userId: user.id,
+      },
+    });
+
+    if (!catalog) {
+      return NextResponse.json({ error: "Catalog Not Found" }, { status: 404 });
+    }
+
+    const updatedCatalog = await prisma.catalog.update({
+      where: { id: catalogId },
+      data: {
+        catalogTitle,
+        catalogColor,
+        catalogDescription,
+      },
+    });
+
+    return NextResponse.json(updatedCatalog, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to update catalog" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ catalogId: string }> },
+) {
+  try {
+    const { catalogId } = await params;
+    const { userId: clerkId } = await auth();
+
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { clerkId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User Not Found" }, { status: 404 });
+    }
+
+    const catalog = await prisma.catalog.findFirst({
+      where: {
+        id: catalogId,
+        userId: user.id,
+      },
+    });
+
+    if (!catalog) {
+      return NextResponse.json({ error: "Catalog Not Found" }, { status: 404 });
+    }
+
+    const deletedCatalog = await prisma.catalog.delete({
+      where: { id: catalogId },
+    });
+
+    return NextResponse.json(deletedCatalog, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to delete catalog" },
       { status: 500 },
     );
   }

@@ -16,9 +16,11 @@ import { Spinner } from "../ui/spinner";
 export default function NewCatalogPopup({
   onSubmit,
   onClose,
+  type,
 }: {
   onSubmit: (name: string, description: string, color: string) => Promise<void>;
   onClose: () => void;
+  type: "new" | "edit";
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -36,7 +38,7 @@ export default function NewCatalogPopup({
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle>New Catalog</CardTitle>
+        <CardTitle>{type.charAt(0).toUpperCase() + type.slice(1)} Catalog</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
@@ -82,7 +84,7 @@ export default function NewCatalogPopup({
           <CardFooter className="flex flex-col gap-4 items-center justify-center bg-card mt-4">
             <div className="w-full flex flex-row gap-4 items-center justify-center">
               <Button type="submit" className="w-1/2">
-                Create
+                {type === 'new' ? 'Create' : 'Update'}
               </Button>
               <Button variant="destructive" className="w-1/2" onClick={onClose}>
                 Cancel
