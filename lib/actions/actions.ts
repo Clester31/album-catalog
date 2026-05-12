@@ -236,7 +236,7 @@ export async function updateTrackReview(trackId: string, review: string) {
 
 export async function getLastFMSearchResults(searchQuery: string | null) {
   const response = await fetch(
-    `http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=${searchQuery}&api_key=${process.env.NEXT_PUBLIC_LASTFM_API_KEY!}&format=json`,
+    `https://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=${searchQuery}&api_key=${process.env.NEXT_PUBLIC_LASTFM_API_KEY!}&format=json`,
   );
   const data = await response.json();
   return data as LastFMTopAlbumsResponse;
@@ -244,7 +244,7 @@ export async function getLastFMSearchResults(searchQuery: string | null) {
 
 export async function getLastFMAlbumInfo(album: string, artist: string) {
   const response = await fetch(
-    `http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${process.env.NEXT_PUBLIC_LASTFM_API_KEY!}&artist=${artist}&album=${album}&format=json`,
+    `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${process.env.NEXT_PUBLIC_LASTFM_API_KEY!}&artist=${artist}&album=${album}&format=json`,
   );
   const data = await response.json();
   return data as LastFMAlbumInfoResponse;
