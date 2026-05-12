@@ -50,7 +50,7 @@ export default function AlbumSearchPopup({
               <Input
                 id="artist-search"
                 type="text"
-                placeholder="Weezer"
+                placeholder="Artist Name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 required

@@ -94,7 +94,7 @@ export async function addCatalogItem(album: LastFMAlbum, catalogId: string) {
           ?.match(/\d{4}-\d{2}-\d{2}/)?.[0]
           ?.substring(0, 4) || "",
       entryReview: "",
-      entryTracks: albumInfo.album.tracks.track,
+      entryTracks: albumInfo.album.tracks?.track ?? [],
     }),
   });
 

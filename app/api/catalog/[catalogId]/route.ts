@@ -34,8 +34,7 @@ export async function POST(
       !entryTitle ||
       !entryCoverArt ||
       entryRating === undefined ||
-      entryRating === null ||
-      !entryTracks
+      entryRating === null
     ) {
       return NextResponse.json({ error: "Incorrect Body" }, { status: 400 });
     }
@@ -72,7 +71,7 @@ export async function POST(
         entryReview,
         createdAt: new Date().toISOString(),
         tracks: {
-          create: entryTracks.map(
+          create: (entryTracks ?? []).map(
             (track: { name: string; duration: string }, index: number) => ({
               trackTitle: track.name,
               trackDuration: parseInt(track.duration) || 0,
