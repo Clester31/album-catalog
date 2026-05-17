@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     if (!data.id) return new Response("No user ID provided", { status: 400 });
     
     await prisma.user.delete({
-      where: { clerkId: data.id},
+      where: { clerkId: data.id },
     })
   }
 

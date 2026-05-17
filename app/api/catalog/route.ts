@@ -63,7 +63,7 @@ export async function GET() {
     })
 
     if (!user) {
-      return NextResponse.json({ error: "User Not Found" }, { status: 404 });
+      return NextResponse.json([], { status: 200 });
     }
 
     const allUserCatalogs = await prisma.catalog.findMany({
