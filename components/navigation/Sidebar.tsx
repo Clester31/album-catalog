@@ -28,7 +28,7 @@ export default function Sidebar() {
     };
 
     fetchAllUserCatalogs();
-  }, [isLoaded, isSignedIn, setCatalogs]); 
+  }, [isLoaded, isSignedIn, setCatalogs]);
 
   const handleSubmit = async (
     name: string,
@@ -52,7 +52,11 @@ export default function Sidebar() {
           variant={"default"}
           onClick={() => {
             setPopup(
-              <NewCatalogPopup onSubmit={handleSubmit} onClose={closePopup} type='new' />,
+              <NewCatalogPopup
+                onSubmit={handleSubmit}
+                onClose={closePopup}
+                type="new"
+              />,
             );
           }}
         >
@@ -60,17 +64,22 @@ export default function Sidebar() {
         </Button>
         <div className="catalog-list flex flex-col gap-2">
           <h1 className="font-semibold">Catalogs</h1>
-          {!loading ? (
-            catalogs &&
-            catalogs.map((catalog: CatalogType, index: number) => {
-              return (
-                <CatalogSidebarItem
-                  key={index}
-                  catalog={catalog}
-                  onSelect={handleSelectCatalog}
-                />
-              );
-            })
+          {!loading && catalogs ? (
+            catalogs.length > 0 ? (
+              catalogs.map((catalog: CatalogType, index: number) => {
+                return (
+                  <CatalogSidebarItem
+                    key={index}
+                    catalog={catalog}
+                    onSelect={handleSelectCatalog}
+                  />
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No catalogs
+              </p>
+            )
           ) : (
             <Spinner />
           )}

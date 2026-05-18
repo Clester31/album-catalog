@@ -4,9 +4,9 @@ import { Button } from "../ui/button";
 export default function SignInFeatures() {
   return (
     <div className="flex flex-row space-x-2 items-center">
-      <div>
+      {/* <div>
         <i className="fa-solid fa-sun"></i>
-      </div>
+      </div> */}
       <Show when={"signed-out"}>
         <Button asChild variant={"outline"}>
           <SignInButton />
